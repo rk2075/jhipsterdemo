@@ -1,0 +1,290 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1504\cocoasubrtf830
+{\fonttbl\f0\fnil\fcharset0 HelveticaNeue;\f1\fnil\fcharset0 HelveticaNeue-Bold;}
+{\colortbl;\red255\green255\blue255;\red53\green53\blue53;}
+{\*\expandedcolortbl;;\cssrgb\c27059\c27059\c27059;}
+\margl1440\margr1440\vieww10800\viewh8400\viewkind0
+\deftab560
+\pard\pardeftab560\slleading20\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf2 <
+\f1\b div class="btn-group" ngbDropdown keyboardNav="true"
+\f0\b0 >\
+    <
+\f1\b button id="dropdown-list" type="button" class="btn btn-default" ngbDropdownToggle
+\f0\b0 >\
+        Select Process Chain<
+\f1\b span class="caret"
+\f0\b0 ></
+\f1\b span
+\f0\b0 >\
+    </
+\f1\b button
+\f0\b0 >\
+    <
+\f1\b ul *ngFor="let genProcessChains of genProcessChains" class="dropdown-menu" role="menu" aria-labelledby="dropdown-keyboard-access" ngbDropdownMenu
+\f0\b0 >\
+         <
+\f1\b li role="menuitem"
+\f0\b0 ><
+\f1\b a class="dropdown-item" href="#"
+\f0\b0 >\{\{genProcessChains.chainName\}\}</
+\f1\b a
+\f0\b0 ></
+\f1\b li
+\f0\b0 >\
+    </
+\f1\b ul
+\f0\b0 >\
+</
+\f1\b div
+\f0\b0 >\
+\
+\
+\pard\pardeftab560\slleading20\partightenfactor0
+\cf2 ====\
+\
+process-chains-dialog.component.ts\
+\
+\pard\pardeftab560\slleading20\pardirnatural\partightenfactor0
+
+\f1\b \cf2 import 
+\f0\b0 \{ 
+\f1\b Component
+\f0\b0 , 
+\f1\b OnInit
+\f0\b0 , 
+\f1\b OnDestroy 
+\f0\b0 \} 
+\f1\b from 
+\f0\b0 '@
+\f1\b angular
+\f0\b0 /
+\f1\b core
+\f0\b0 ';\
+
+\f1\b import 
+\f0\b0 \{ 
+\f1\b ActivatedRoute 
+\f0\b0 \} 
+\f1\b from 
+\f0\b0 '@
+\f1\b angular
+\f0\b0 /
+\f1\b router
+\f0\b0 ';\
+
+\f1\b import 
+\f0\b0 \{ 
+\f1\b Response 
+\f0\b0 \} 
+\f1\b from 
+\f0\b0 '@
+\f1\b angular
+\f0\b0 /
+\f1\b http
+\f0\b0 ';\
+\
+
+\f1\b import 
+\f0\b0 \{ 
+\f1\b Observable 
+\f0\b0 \} 
+\f1\b from 
+\f0\b0 '
+\f1\b rxjs
+\f0\b0 /
+\f1\b Rx
+\f0\b0 ';\
+
+\f1\b import 
+\f0\b0 \{ 
+\f1\b NgbActiveModal
+\f0\b0 , 
+\f1\b NgbModalRef 
+\f0\b0 \} 
+\f1\b from 
+\f0\b0 '@
+\f1\b ng-bootstrap
+\f0\b0 /
+\f1\b ng-bootstrap
+\f0\b0 ';\
+
+\f1\b import 
+\f0\b0 \{ 
+\f1\b JhiEventManager
+\f0\b0 , 
+\f1\b JhiAlertService 
+\f0\b0 \} 
+\f1\b from 
+\f0\b0 '
+\f1\b ng-jhipster
+\f0\b0 ';\
+
+\f1\b import 
+\f0\b0 \{ 
+\f1\b ITEMS_PER_PAGE
+\f0\b0 , 
+\f1\b Principal
+\f0\b0 , 
+\f1\b ResponseWrapper 
+\f0\b0 \} 
+\f1\b from 
+\f0\b0 '../../
+\f1\b shared
+\f0\b0 ';\
+\
+
+\f1\b import 
+\f0\b0 \{ 
+\f1\b GenProcessChains 
+\f0\b0 \} 
+\f1\b from 
+\f0\b0 '../../
+\f1\b entities
+\f0\b0 /
+\f1\b gen-process-chains
+\f0\b0 /
+\f1\b gen-process-chains
+\f0\b0 .
+\f1\b model
+\f0\b0 ';\
+
+\f1\b import 
+\f0\b0 \{ 
+\f1\b ProcessChainsPopupService 
+\f0\b0 \} 
+\f1\b from 
+\f0\b0 './
+\f1\b process-chains-popup
+\f0\b0 .
+\f1\b service
+\f0\b0 ';\
+
+\f1\b import 
+\f0\b0 \{ 
+\f1\b GenProcessChainsService 
+\f0\b0 \} 
+\f1\b from 
+\f0\b0 '../../
+\f1\b entities
+\f0\b0 /
+\f1\b gen-process-chains
+\f0\b0 /
+\f1\b gen-process-chains
+\f0\b0 .
+\f1\b service
+\f0\b0 ';\
+\
+@
+\f1\b Component
+\f0\b0 (
+\f1\b \{\
+    selector: 'jhi-gen-process-chains-dialog',\
+    templateUrl: './process-chains-dialog.component.html'\
+\})\
+export class ProcessChainsDialogComponent implements OnInit \{\
+\
+    genProcessChains: GenProcessChains;\
+    authorities: any[];\
+    isSaving: boolean;\
+\
+    constructor(\
+        public activeModal: NgbActiveModal,\
+        private alertService: JhiAlertService,\
+        private genProcessChainsService: GenProcessChainsService,\
+        private eventManager: JhiEventManager\
+    ) \{\
+    \}\
+\
+    ngOnInit() \{\
+        this.isSaving = false;\
+        this.authorities = ['ROLE_USER', 'ROLE_ADMIN'];\
+        this.loadProcessChains();\
+    \}\
+\
+    loadProcessChains() \{\
+        this.genProcessChainsService.query().subscribe(\
+            (res: ResponseWrapper) => \{\
+                this.genProcessChains = res.json;\
+            \},\
+            (res: ResponseWrapper) => this.onError(res.json)\
+        );\
+    \}\
+\
+    clear() \{\
+        this.activeModal.dismiss('cancel');\
+    \}\
+\
+    save() \{\
+        this.isSaving = true;\
+        if (this.genProcessChains.id !== undefined) \{\
+            this.subscribeToSaveResponse(\
+                this.genProcessChainsService.update(this.genProcessChains), false);\
+        \} else \{\
+            this.subscribeToSaveResponse(\
+                this.genProcessChainsService.create(this.genProcessChains), true);\
+        \}\
+    \}\
+\
+    private subscribeToSaveResponse(result: Observable<GenProcessChains>, isCreated: boolean) \{\
+        result.subscribe((res: GenProcessChains) =>\
+            this.onSaveSuccess(res, isCreated), (res: Response) => this.onSaveError(res));\
+    \}\
+\
+    private onSaveSuccess(result: GenProcessChains, isCreated: boolean) \{\
+        this.alertService.success(\
+            isCreated ? 'doodilApp.genProcessChains.created'\
+            : 'doodilApp.genProcessChains.updated',\
+            \{ param : result.id \}, null);\
+\
+        this.eventManager.broadcast(\{ name: 'genProcessChainsListModification', content: 'OK'\});\
+        this.isSaving = false;\
+        this.activeModal.dismiss(result);\
+    \}\
+\
+    private onSaveError(error) \{\
+        try \{\
+            error.json();\
+        \} catch (exception) \{\
+            error.message = error.text();\
+        \}\
+        this.isSaving = false;\
+        this.onError(error);\
+    \}\
+\
+    private onError(error) \{\
+        this.alertService.error(error.message, null, null);\
+    \}\
+\}\
+\
+@Component(\{\
+    selector: 'jhi-gen-process-chains-popup',\
+    template: ''\
+\})\
+export class ProcessChainsPopupComponent implements OnInit, OnDestroy \{\
+\
+    modalRef: NgbModalRef;\
+    routeSub: any;\
+\
+    constructor(\
+        private route: ActivatedRoute,\
+        private genProcessChainsPopupService: ProcessChainsPopupService\
+    ) \{\}\
+\
+    ngOnInit() \{\
+        this.routeSub = this.route.params.subscribe((params) => \{\
+            if ( params['id'] ) \{\
+                this.modalRef = this.genProcessChainsPopupService\
+                    .open(ProcessChainsDialogComponent, params['id']);\
+            \} else \{\
+                this.modalRef = this.genProcessChainsPopupService\
+                    .open(ProcessChainsDialogComponent);\
+            \}\
+        \});\
+    \}\
+\
+    ngOnDestroy() \{\
+        this.routeSub.unsubscribe();\
+    \}\
+\}\
+}
