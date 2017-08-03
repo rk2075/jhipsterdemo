@@ -258,7 +258,7 @@ export class ProcessChainsPopupComponent implements OnInit, OnDestroy {
 }
 
 
-  <div class="modal-header">
+   <div class="modal-header">
         <h4 class="modal-title" id="myGenProcessChainsLabel" jhiTranslate="doodilApp.genProcessChains.home.createOrEditLabel">Create or edit a Gen Process Chains</h4>
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
                 (click)="clear()">&times;</button>
@@ -280,21 +280,20 @@ export class ProcessChainsPopupComponent implements OnInit, OnDestroy {
                         <tr><td><b>Step {{i + 1}} : </b></td>
                             <span *ngFor="let formulaSplit of gpChainFormula.formulaSplit; index as j; trackBy: trackFormulaSplitId">
                     <td>{{formulaSplit.key}}<br/>
-                         <span *ngFor="let lstfield of lstFields; index as k">
-                             <span *ngIf="lstfield.name == formulaSplit.genName">
-                        <span *ngIf="formulaSplit.operator != 'Y' && formulaSplit.value == 'I'">
-                                <input type="text" class="form-control" [attr.name]="lstfield.name" [attr.id]="lstfield.name"
+                        <span *ngFor="let lstfield of lstFields; index as k">
+                            <span *ngIf="lstfield.genName == formulaSplit.genName">
+                                <span *ngIf="formulaSplit.operator != 'Y' && formulaSplit.value == 'I'">
+                                    <input type="text" class="form-control" [attr.name]="lstfield.name" [attr.id]="lstfield.name"
                                        [(ngModel)]="lstfield.value" required/>
-
+                                </span>
+                                <span *ngIf="formulaSplit.operator != 'Y' && formulaSplit.value == 'D'">
+                                    <input type="text" class="form-control" [attr.name]="lstfield.name" [attr.id]="lstfield.name"
+                                       [(ngModel)]="lstfield.value"  [readonly]="true"/>
+                                </span>
+                            </span>
                         </span>
-                        <span *ngIf="formulaSplit.operator != 'Y' && formulaSplit.value == 'D'">
-                            <input type="text" class="form-control" [attr.name]="lstfield.name" [attr.id]="lstfield.name"
-                                   [(ngModel)]="lstfield.value"  [readonly]="true"/>
-                        </span>
-                                 </span>
                     </td>
-                        </span>
-                        </tr>
+                    </tr>
                 </div>
                 </tbody>
             </table>
@@ -308,6 +307,8 @@ export class ProcessChainsPopupComponent implements OnInit, OnDestroy {
             <span class="fa fa-save"></span>&nbsp;<span jhiTranslate="entity.action.save">Save</span>
         </button>
     </div>
+
+
 
 import { BaseEntity } from './../../shared';
 
