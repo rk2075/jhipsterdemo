@@ -1,247 +1,7 @@
-
-<div>
-    <form name="editForm" role="form" novalidate (ngSubmit)="save()" #editForm="ngForm">
-        <div class="row">
-            <div class="col-md-8 offset-md-1">
-                <ngb-tabset>
-                    <ngb-tab title="Doodle Entry Info">
-                        <ng-template ngbTabContent>
-                            <p></p>
-                        </ng-template>
-                    </ngb-tab>
-                    <ngb-tab>
-                        <ng-template ngbTabTitle>Products Details</ng-template>
-                        <ng-template ngbTabContent>
-                            <p></p>
-                        </ng-template>
-                    </ngb-tab>
-                    <ngb-tab title="Income Stmt Info">
-                        <ng-template ngbTabContent>
-                            <p></p>
-                        </ng-template>
-                    </ngb-tab>
-                    <ngb-tab title="Balance Sheet Info">
-                        <ng-template ngbTabContent>
-                            <p></p>
-                        </ng-template>
-                    </ngb-tab>
-                </ngb-tabset>
-                <div class="alert alert-success" *ngIf="success" jhiTranslate="register.messages.success">
-                    <strong>Doodil Entry saved</strong>
-                </div>
-
-                <div class="alert alert-danger" *ngIf="error" jhiTranslate="register.messages.error.fail">
-                    <strong>System error</strong> Please try again later.
-                </div>
-            </div>
-        </div>
-        <div class="col-md-8 offset-md-1">
-            <jhi-alert-error></jhi-alert-error>
-            <div class="form-group" [hidden]="!doodilEntry.id">
-                <label for="id" jhiTranslate="global.field.id">ID</label>
-                <input type="text" class="form-control" id="id" name="id"
-                       [(ngModel)]="doodilEntry.id" readonly />
-            </div>
-            <div class="form-group">
-                <label class="form-control-label" jhiTranslate="doodilApp.doodilEntry.name" for="field_name">Name</label>
-                <input type="text" class="form-control" name="name" id="field_name"
-                       [(ngModel)]="doodilEntry.name"  />
-            </div>
-            <div class="form-group">
-                <label class="form-control-label" jhiTranslate="doodilApp.doodilEntry.desc" for="field_desc">Desc</label>
-                <input type="text" class="form-control" name="desc" id="field_desc"
-                       [(ngModel)]="doodilEntry.desc"  />
-            </div>
-            <div class="form-group">
-                <label class="form-control-label" jhiTranslate="doodilApp.doodilEntry.period" for="field_period">Period</label>
-                <input type="text" class="form-control" name="period" id="field_period"
-                       [(ngModel)]="doodilEntry.period"  />
-            </div>
-            <div class="form-group">
-                <label class="form-control-label" jhiTranslate="doodilApp.doodilEntry.createTime" for="field_createTime">Create Time</label>
-                <div class="d-flex">
-                    <input id="field_createTime" type="datetime-local" class="form-control" name="createTime" [(ngModel)]="doodilEntry.createTime"
-                    />
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="form-control-label" jhiTranslate="doodilApp.doodilEntry.updateTime" for="field_updateTime">Update Time</label>
-                <div class="d-flex">
-                    <input id="field_updateTime" type="datetime-local" class="form-control" name="updateTime" [(ngModel)]="doodilEntry.updateTime"
-                    />
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label jhiTranslate="doodilApp.doodilEntry.user" for="field_user">User</label>
-                <select class="form-control" id="field_user" name="user" [(ngModel)]="doodilEntry.userId" >
-                    <option [ngValue]="null"></option>
-                    <option [ngValue]="userOption.id" *ngFor="let userOption of users; trackBy: trackUserById">{{userOption.login}}</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label jhiTranslate="doodilApp.doodilEntry.dePeriod" for="field_dePeriod">De Period</label>
-                <select class="form-control" id="field_dePeriod" name="dePeriod" [(ngModel)]="doodilEntry.dePeriodId" >
-                    <option [ngValue]="null"></option>
-                    <option [ngValue]="doodilEntryPeriodsOption.id" *ngFor="let doodilEntryPeriodsOption of doodilentryperiods; trackBy: trackDoodilEntryPeriodsById">{{doodilEntryPeriodsOption.quarterName}}</option>
-                </select>
-            </div>
-            <div class="form-group pull-right">
-                <button class="btn btn-primary" [routerLink]="['../data-list']">
-                    <span class="fa fa-cancel"></span>&nbsp;<span jhiTranslate="entity.action.cancel">Cancel</span>
-                </button>
-                <button type="submit" [disabled]="editForm.form.invalid || isSaving" class="btn btn-primary">
-                    Save and Continue
-                </button>
-            </div>
-        </div>
-    </form>
-</div>
-
-process-chains-dialog.component.html
-<form name="editForm" role="form" novalidate (ngSubmit)="save()" #editForm="ngForm">
-
-    <div class="modal-header">
-        <h4 class="modal-title" id="myGenProcessChainsLabel" jhiTranslate="doodilApp.genProcessChains.home.createOrEditLabel">Create or edit a Gen Process Chains</h4>
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
-                (click)="clear()">&times;</button>
-    </div>
-    <div class="modal-body">
-        <jhi-alert-error></jhi-alert-error>
-        <div class="form-group" [hidden]="!genProcessChains.id">
-            <label for="id" jhiTranslate="global.field.id">ID</label>
-            <input type="text" class="form-control" id="id" name="id"
-                   [(ngModel)]="genProcessChains.id" readonly />
-        </div>
-        <div class="btn-group" ngbDropdown keyboardNav="true">
-            <button id="dropdown-list" type="button" class="btn btn-default" ngbDropdownToggle>
-                Select Process Chain<span class="caret"></span>
-            </button>
-            <ul *ngFor="let genProcessChains of genProcessChains" class="dropdown-menu" role="menu" aria-labelledby="dropdown-keyboard-access" ngbDropdownMenu>
-                 <li role="menuitem"><a class="dropdown-item" (click)="getFormulas(genProcessChains)">{{genProcessChains.chainName}}</a></li>
-            </ul>
-        </div>
-        <div class="table-responsive" *ngIf="genProcessChainFormulas">
-            <table class="table">
-                <tbody>
-                <div *ngFor="let gpChainFormula of processChainFormulas; index as i">
-                        <tr><td><b>Step {{i + 1}} : </b></td>
-                            <span *ngFor="let formulaSplit of gpChainFormula.formulaSplit; index as j">
-                    <td>{{formulaSplit.key}}<br/>
-                        <span *ngIf="formulaSplit.operator != 'Y' && formulaSplit.value == 'I'">
-                            <input type="text" name="formulaSplit">
-                        </span>
-                        <span *ngIf="formulaSplit.operator != 'Y' && formulaSplit.value == 'D'">
-                            <input type="text" name="formulaSplit" readonly>
-                        </span>
-                    </td>
-                        </span>
-                        </tr>
-                </div>
-                </tbody>
-            </table>
-        </div>
-    </div>
-    <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal" (click)="clear()">
-            <span class="fa fa-ban"></span>&nbsp;<span jhiTranslate="entity.action.cancel">Cancel</span>
-        </button>
-        <button type="submit" [disabled]="editForm.form.invalid || isSaving" class="btn btn-primary">
-            <span class="fa fa-save"></span>&nbsp;<span jhiTranslate="entity.action.save">Save</span>
-        </button>
-    </div>
-</form>
-
-data-entry-products.component.html
-<div>
-    <ngb-tabset>
-        <ngb-tab title="Doodle Entry Info">
-            <ng-template ngbTabContent>
-                <p></p>
-            </ng-template>
-        </ngb-tab>
-        <ngb-tab>
-            <ng-template ngbTabTitle>Products Details</ng-template>
-            <ng-template ngbTabContent>
-                <p></p>
-            </ng-template>
-        </ngb-tab>
-        <ngb-tab title="Income Stmt Info">
-            <ng-template ngbTabContent>
-                <p></p>
-            </ng-template>
-        </ngb-tab>
-        <ngb-tab title="Balance Sheet Info">
-            <ng-template ngbTabContent>
-                <p></p>
-            </ng-template>
-        </ngb-tab>
-    </ngb-tabset>
-    <jhi-alert></jhi-alert>
-    <div class="row">
-    </div>
-    <br/>
-    <div class="table-responsive" *ngIf="productServiceDefs">
-        <table class="table table-striped">
-            <thead>
-            <tr jhiSort [(predicate)]="predicate" [(ascending)]="reverse" [callback]="reset.bind(this)">
-                <th jhiSortBy="id"><span jhiTranslate="global.field.id">ID</span> <span class="fa fa-sort"></span></th>
-                <th jhiSortBy="name"><span jhiTranslate="doodilApp.productServiceDef.name">Name</span> <span class="fa fa-sort"></span></th>
-                <th jhiSortBy="majorCategory"><span jhiTranslate="doodilApp.productServiceDef.majorCategory">Major Category</span> <span class="fa fa-sort"></span></th>
-                <th jhiSortBy="minorCategory"><span jhiTranslate="doodilApp.productServiceDef.minorCategory">Minor Category</span> <span class="fa fa-sort"></span></th>
-                <th jhiSortBy="seasons"><span jhiTranslate="doodilApp.productServiceDef.seasons">Seasons</span> <span class="fa fa-sort"></span></th>
-                <th jhiSortBy="types"><span jhiTranslate="doodilApp.productServiceDef.types">Types</span> <span class="fa fa-sort"></span></th>
-                <th jhiSortBy="make"><span jhiTranslate="doodilApp.productServiceDef.make">Make</span> <span class="fa fa-sort"></span></th>
-                <th jhiSortBy="grade"><span jhiTranslate="doodilApp.productServiceDef.grade">Grade</span> <span class="fa fa-sort"></span></th>
-                <th>Quantity</th>
-                <th>Price</th>
-                <th>Cost</th>
-                <th></th>
-            </tr>
-            </thead>
-            <tbody infinite-scroll (scrolled)="loadPage(page + 1)" [infiniteScrollDisabled]="page >= links['last']" [infiniteScrollDistance]="0">
-            <tr *ngFor="let productServiceDef of productServiceDefs ;trackBy: trackId">
-                <td><a [routerLink]="['../product-service-def', productServiceDef.id ]">{{productServiceDef.id}}</a></td>
-                <td>{{productServiceDef.name}}</td>
-                <td>{{productServiceDef.majorCategory}}</td>
-                <td>{{productServiceDef.minorCategory}}</td>
-                <td>{{productServiceDef.seasons}}</td>
-                <td>{{productServiceDef.types}}</td>
-                <td>{{productServiceDef.make}}</td>
-                <td>{{productServiceDef.grade}}</td>
-                <td>
-                    <button type="submit"
-                            [routerLink]="['/', { outlets: { popup: 'data-entry-chains-list'} }]"
-                            replaceUrl="true" class="btn btn-primary btn-sm">
-                        <span class="fa fa-pencil"></span>
-                        <span class="hidden-md-down">Add Quantity</span>
-                    </button>
-                </td>
-                <td>
-                    <button type="submit" [routerLink]="['../data-entry/'+ productServiceDef.id + '/edit']"
-                            replaceUrl="true" class="btn btn-primary btn-sm">
-                        <span class="fa fa-pencil"></span>
-                        <span class="hidden-md-down">Add Price</span>
-                    </button>
-                </td>
-                <td>
-                    <button type="submit" [routerLink]="['../data-entry/'+ productServiceDef.id + '/edit']"
-                            replaceUrl="true" class="btn btn-primary btn-sm">
-                        <span class="fa fa-pencil"></span>
-                        <span class="hidden-md-down">Add Cost</span>
-                    </button>
-                </td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
-</div>
-
-process-chains-dialog.component.ts
-        import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Response } from '@angular/http';
-
+import { NgForm } from '@angular/forms';
 import { Observable } from 'rxjs/Rx';
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { JhiEventManager, JhiAlertService } from 'ng-jhipster';
@@ -271,6 +31,7 @@ export class ProcessChainsDialogComponent implements OnInit {
     processChainFormulas: ProcessChainsFormula[];
     processChainFormula: ProcessChainsFormula;
     keyValue: KeyValue;
+    lstFields: Object[] = [];
 
     constructor(
         public activeModal: NgbActiveModal,
@@ -278,17 +39,27 @@ export class ProcessChainsDialogComponent implements OnInit {
         private genProcessChainsService: GenProcessChainsService,
         private genProcessChainFormulaService: GenProcessChainFormulaService,
         private processVarsService: ProcessVarsService,
-        private eventManager: JhiEventManager
+        private eventManager: JhiEventManager,
+        private cdRef: ChangeDetectorRef,
     ) {
 
     }
 
+    addFormFields(genName, argValue, realName){
+        this.lstFields.push({'genName':genName,'value':argValue,'realName':realName});
+        console.log(this.lstFields);
+    }
+
     ngOnInit() {
+        this.loadProcessVars();
+        this.loadProcessChains();
         this.isSaving = false;
         this.authorities = ['ROLE_USER', 'ROLE_ADMIN'];
-        this.loadProcessChains();
         this.processChainFormulas = new Array();
-        this.loadProcessVars();
+    }
+
+    ngAfterViewChecked(){
+        this.cdRef.detectChanges();
     }
 
     loadProcessVars() {
@@ -329,16 +100,16 @@ export class ProcessChainsDialogComponent implements OnInit {
                 if(char == '+' || char == '-' || char == '%' || char == '*' || char == ')' || char == '(' || char == '='){
                     token = token.replace(/\s/g, '');
                     if(typeof token!='undefined' && token){
-                       fSplits.push(this.getKeyValue(token));
+                       fSplits.push(this.getKeyValue(token, item.id));
                     }
-                    fSplits.push(this.getKeyValue(char));
+                    fSplits.push(this.getKeyValue(char, item.id));
                     token = '';
                 }
                 else{
                     token = token + char;
                 }
             }
-            fSplits.push(this.getKeyValue(token));
+            fSplits.push(this.getKeyValue(token, item.id));
             token = '';
             this.processChainFormula.formulaSplit = fSplits;
             this.processChainFormulas.push(this.processChainFormula);
@@ -353,6 +124,8 @@ export class ProcessChainsDialogComponent implements OnInit {
 
     save() {
         this.isSaving = true;
+        console.log('in save');
+        /*
         if (this.genProcessChains.id !== undefined) {
             this.subscribeToSaveResponse(
                 this.genProcessChainsService.update(this.genProcessChains), false);
@@ -360,6 +133,7 @@ export class ProcessChainsDialogComponent implements OnInit {
             this.subscribeToSaveResponse(
                 this.genProcessChainsService.create(this.genProcessChains), true);
         }
+        */
     }
 
     private subscribeToSaveResponse(result: Observable<GenProcessChains>, isCreated: boolean) {
@@ -415,22 +189,40 @@ export class ProcessChainsDialogComponent implements OnInit {
             }
         }
     }
-    private getKeyValue(arg){
+    private getKeyValue(arg, itemId){
         let keyValue = new KeyValue();
-        keyValue.key = arg;
+        keyValue.key = arg.trim();
+        keyValue.genName = arg+itemId;
         if(this.checkOperator(arg)){
             keyValue.operator='Y';
             keyValue.value='N';
+            keyValue.name=arg;
         }
         else if(this.checkInputOrDerivedVar(arg) == 'I'){
             keyValue.operator='N';
             keyValue.value='I';
+            keyValue.name=arg;
+            this.addFormFields(arg+itemId,'',arg);
         }
         else {
             keyValue.operator='N';
             keyValue.value='D';
+            keyValue.name=arg;
+            this.addFormFields(arg+itemId,'',arg);
         }
         return keyValue;
+    }
+
+    trackChainsId(index: number, item: GenProcessChains) {
+        return item.id;
+    }
+
+    trackFormulaId(index: number, item: GenProcessChainFormula) {
+        return item.id;
+    }
+
+    trackFormulaSplitId(index: number, item: ProcessChainsFormula) {
+        return item.id;
     }
 }
 
@@ -465,28 +257,72 @@ export class ProcessChainsPopupComponent implements OnInit, OnDestroy {
     }
 }
 
-index.ts
-export * from './data-list.component';
-export * from './data-entry.component';
-export * from './data-entry-products.component';
-export * from './data-entry.route';
-export * from './process-chains-dialog.component';
-export * from './process-chains-popup.service';
-export * from './process-chains-formula.model';
-export * from './key-value.model';
 
-key-value.model.ts
+  <div class="modal-header">
+        <h4 class="modal-title" id="myGenProcessChainsLabel" jhiTranslate="doodilApp.genProcessChains.home.createOrEditLabel">Create or edit a Gen Process Chains</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
+                (click)="clear()">&times;</button>
+    </div>
+    <div class="modal-body">
+        <jhi-alert-error></jhi-alert-error>
+        <div class="btn-group" ngbDropdown keyboardNav="true">
+            <button id="dropdown-list" type="button" class="btn btn-default" ngbDropdownToggle>
+                Select Process Chain<span class="caret"></span>
+            </button>
+            <ul *ngFor="let genProcessChains of genProcessChains; trackBy: trackChainsId" class="dropdown-menu" role="menu" aria-labelledby="dropdown-keyboard-access" ngbDropdownMenu>
+                 <li role="menuitem"><a class="dropdown-item" (click)="getFormulas(genProcessChains)">{{genProcessChains.chainName}}</a></li>
+            </ul>
+        </div>
+        <div class="table-responsive" *ngIf="genProcessChainFormulas">
+            <table class="table">
+                <tbody>
+                <div *ngFor="let gpChainFormula of processChainFormulas; index as i; trackBy: trackFormulaId">
+                        <tr><td><b>Step {{i + 1}} : </b></td>
+                            <span *ngFor="let formulaSplit of gpChainFormula.formulaSplit; index as j; trackBy: trackFormulaSplitId">
+                    <td>{{formulaSplit.key}}<br/>
+                         <span *ngFor="let lstfield of lstFields; index as k">
+                             <span *ngIf="lstfield.name == formulaSplit.genName">
+                        <span *ngIf="formulaSplit.operator != 'Y' && formulaSplit.value == 'I'">
+                                <input type="text" class="form-control" [attr.name]="lstfield.name" [attr.id]="lstfield.name"
+                                       [(ngModel)]="lstfield.value" required/>
+
+                        </span>
+                        <span *ngIf="formulaSplit.operator != 'Y' && formulaSplit.value == 'D'">
+                            <input type="text" class="form-control" [attr.name]="lstfield.name" [attr.id]="lstfield.name"
+                                   [(ngModel)]="lstfield.value"  [readonly]="true"/>
+                        </span>
+                                 </span>
+                    </td>
+                        </span>
+                        </tr>
+                </div>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal" (click)="clear()">
+            <span class="fa fa-ban"></span>&nbsp;<span jhiTranslate="entity.action.cancel">Cancel</span>
+        </button>
+        <button type="button" class="btn btn-primary" (click)="save()">
+            <span class="fa fa-save"></span>&nbsp;<span jhiTranslate="entity.action.save">Save</span>
+        </button>
+    </div>
 
 import { BaseEntity } from './../../shared';
 
 export class KeyValue implements BaseEntity {
     constructor(
         public key?: string,
+        public name?: string,
         public value?: string,
         public operator?: string,
+        public argValue?: string,
+        public genName?: string,
     ) {
     }
 }
 
 
-        </div>
+
+
