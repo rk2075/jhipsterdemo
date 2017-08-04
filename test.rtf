@@ -1,329 +1,139 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { Response } from '@angular/http';
-import { NgForm } from '@angular/forms';
-import { Observable } from 'rxjs/Rx';
-import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { JhiEventManager, JhiAlertService } from 'ng-jhipster';
-import { ITEMS_PER_PAGE, Principal, ResponseWrapper } from '../../shared';
 
-import { ProcessVars } from '../../entities/process-vars/process-vars.model';
-import { ProcessVarsService } from '../../entities/process-vars/process-vars.service';
-import { GenProcessChainFormula } from '../../entities/gen-process-chain-formula/gen-process-chain-formula.model';
-import { GenProcessChains } from '../../entities/gen-process-chains/gen-process-chains.model';
-import { ProcessChainsPopupService } from './process-chains-popup.service';
-import { GenProcessChainsService } from '../../entities/gen-process-chains/gen-process-chains.service';
-import { GenProcessChainFormulaService } from '../../entities/gen-process-chain-formula/gen-process-chain-formula.service';
-import { ProcessChainsFormula } from './process-chains-formula.model';
-import { KeyValue } from './key-value.model';
-
-@Component({
-    selector: 'jhi-gen-process-chains-dialog',
-    templateUrl: './process-chains-dialog.component.html'
-})
-export class ProcessChainsDialogComponent implements OnInit {
-
-    processVars: ProcessVars[];
-    genProcessChainFormulas: GenProcessChainFormula[];
-    genProcessChains: GenProcessChains;
-    authorities: any[];
-    isSaving: boolean;
-    processChainFormulas: ProcessChainsFormula[];
-    processChainFormula: ProcessChainsFormula;
-    keyValue: KeyValue;
-    lstFields: Object[] = [];
-
-    constructor(
-        public activeModal: NgbActiveModal,
-        private alertService: JhiAlertService,
-        private genProcessChainsService: GenProcessChainsService,
-        private genProcessChainFormulaService: GenProcessChainFormulaService,
-        private processVarsService: ProcessVarsService,
-        private eventManager: JhiEventManager,
-        private cdRef: ChangeDetectorRef,
-    ) {
-
-    }
-
-    addFormFields(genName, argValue, realName){
-        this.lstFields.push({'genName':genName,'value':argValue,'realName':realName});
-        console.log(this.lstFields);
-    }
-
-    ngOnInit() {
-        this.loadProcessVars();
-        this.loadProcessChains();
-        this.isSaving = false;
-        this.authorities = ['ROLE_USER', 'ROLE_ADMIN'];
-        this.processChainFormulas = new Array();
-    }
-
-    ngAfterViewChecked(){
-        this.cdRef.detectChanges();
-    }
-
-    loadProcessVars() {
-        this.processVarsService.query().subscribe(
-            (res: ResponseWrapper) => {
-            this.processVars = res.json;
-            },
-            (res: ResponseWrapper) => this.onError(res.json)
-        );
-    }
-
-    loadProcessChains() {
-        this.genProcessChainsService.query().subscribe(
-            (res: ResponseWrapper) => {
-                this.genProcessChains = res.json;
-            },
-            (res: ResponseWrapper) => this.onError(res.json)
-        );
-    }
-
-    getFormulas(genProcessChain){
-        this.genProcessChainFormulaService.query('gpChainsIdId=' + genProcessChain.id).subscribe(
-            (res: ResponseWrapper) => {
-                this.genProcessChainFormulas = res.json;
-                this.splitFormula();
-            },
-            (res: ResponseWrapper) => this.onError(res.json)
-        );
-    }
-
-    splitFormula(){
-        let token = '';
-        for (var item of this.genProcessChainFormulas) {
-            this.processChainFormula = new ProcessChainsFormula();
-            this.processChainFormula.formula = item.formula;
-            let fSplits = new Array();
-            for (var char of item.formula) {
-                if(char == '+' || char == '-' || char == '%' || char == '*' || char == ')' || char == '(' || char == '='){
-                    token = token.replace(/\s/g, '');
-                    if(typeof token!='undefined' && token){
-                       fSplits.push(this.getKeyValue(token, item.id));
-                    }
-                    fSplits.push(this.getKeyValue(char, item.id));
-                    token = '';
-                }
-                else{
-                    token = token + char;
-                }
-            }
-            fSplits.push(this.getKeyValue(token, item.id));
-            token = '';
-            this.processChainFormula.formulaSplit = fSplits;
-            this.processChainFormulas.push(this.processChainFormula);
-        }
-        console.log('........splitting done............');
-        console.log(this.processChainFormulas);
-    }
-
-    clear() {
-        this.activeModal.dismiss('cancel');
-    }
-
-    save() {
-        this.isSaving = true;
-        console.log('in save');
-        /*
-        if (this.genProcessChains.id !== undefined) {
-            this.subscribeToSaveResponse(
-                this.genProcessChainsService.update(this.genProcessChains), false);
-        } else {
-            this.subscribeToSaveResponse(
-                this.genProcessChainsService.create(this.genProcessChains), true);
-        }
-        */
-    }
-
-    private subscribeToSaveResponse(result: Observable<GenProcessChains>, isCreated: boolean) {
-        result.subscribe((res: GenProcessChains) =>
-            this.onSaveSuccess(res, isCreated), (res: Response) => this.onSaveError(res));
-    }
-
-    private onSaveSuccess(result: GenProcessChains, isCreated: boolean) {
-        this.alertService.success(
-            isCreated ? 'doodilApp.genProcessChains.created'
-            : 'doodilApp.genProcessChains.updated',
-            { param : result.id }, null);
-
-        this.eventManager.broadcast({ name: 'genProcessChainsListModification', content: 'OK'});
-        this.isSaving = false;
-        this.activeModal.dismiss(result);
-    }
-
-    private onSaveError(error) {
-        try {
-            error.json();
-        } catch (exception) {
-            error.message = error.text();
-        }
-        this.isSaving = false;
-        this.onError(error);
-    }
-
-    private onError(error) {
-        this.alertService.error(error.message, null, null);
-    }
-
-    private checkOperator(arg){
-        if(arg == '+' || arg == '-' || arg == '%' || arg == '*' || arg == ')' || arg == '(' || arg == '='){
-            return true;
-        }
-        else {
-            return false;
-        }
-    }
-
-    private checkInputOrDerivedVar(arg){
-        for(let processVar of this.processVars){
-            if(processVar.varName == arg){
-                console.log(arg);
-                console.log(processVar);
-                if(processVar.category == 'Input'){
-                    return 'I';
-                }
-                else{
-                    return 'D';
-                }
-            }
-        }
-    }
-    private getKeyValue(arg, itemId){
-        let keyValue = new KeyValue();
-        keyValue.key = arg.trim();
-        keyValue.genName = arg+itemId;
-        if(this.checkOperator(arg)){
-            keyValue.operator='Y';
-            keyValue.value='N';
-            keyValue.name=arg;
-        }
-        else if(this.checkInputOrDerivedVar(arg) == 'I'){
-            keyValue.operator='N';
-            keyValue.value='I';
-            keyValue.name=arg;
-            this.addFormFields(arg+itemId,'',arg);
-        }
-        else {
-            keyValue.operator='N';
-            keyValue.value='D';
-            keyValue.name=arg;
-            this.addFormFields(arg+itemId,'',arg);
-        }
-        return keyValue;
-    }
-
-    trackChainsId(index: number, item: GenProcessChains) {
-        return item.id;
-    }
-
-    trackFormulaId(index: number, item: GenProcessChainFormula) {
-        return item.id;
-    }
-
-    trackFormulaSplitId(index: number, item: ProcessChainsFormula) {
-        return item.id;
-    }
+//product / services table
+//relationship is explained down
+entity ProductServiceDef {
+	name String,
+	majorCategory String,
+    minorCategory String,
+    seasons String,
+    types String,
+    make String,
+    grade String,
+}
+//market price channels
+entity MarketPriceDef{
+	name String,
+	marketChannels String,
+	marketLocations String,
+	marketSegments String,
+	gender String,
+	age String,
+	seasons String,
+	priceRanges String
+}
+//for each quarter / month, they create
+//case - period specify the vlaues
+entity DoodilCases{
+	name String,
+    desc String,
+    createTime ZonedDateTime,
+    updateTime ZonedDateTime
+}
+//multiple products - product will be
+//linked to marketpricedef, genprocess chain
+entity DoodilEntryData{
+    quantity Double,
+    cost Double
 }
 
-@Component({
-    selector: 'jhi-gen-process-chains-popup',
-    template: ''
-})
-export class ProcessChainsPopupComponent implements OnInit, OnDestroy {
+entity DoodilEntryPrices{
+	quantity Double,
+    price Double,
+    marketChainName String
+}
+entity DoodilEntryPeriods{
+	quarterName String,
+    quarterValue String
+}
 
-    modalRef: NgbModalRef;
-    routeSub: any;
+entity DoodilEntryProcessChains{
+}
 
-    constructor(
-        private route: ActivatedRoute,
-        private genProcessChainsPopupService: ProcessChainsPopupService
-    ) {}
+entity DoodilEntry{
+	name String,
+    desc String,
+    period String,
+    createTime ZonedDateTime,
+    updateTime ZonedDateTime
+}
 
-    ngOnInit() {
-        this.routeSub = this.route.params.subscribe((params) => {
-            if ( params['id'] ) {
-                this.modalRef = this.genProcessChainsPopupService
-                    .open(ProcessChainsDialogComponent, params['id']);
-            } else {
-                this.modalRef = this.genProcessChainsPopupService
-                    .open(ProcessChainsDialogComponent);
-            }
-        });
-    }
+//extended information about user
+//which industry user / company belogs to
+//one to one relationship with user
+entity CompanyInfo{
+	companyName String,
+    companyDesc String,
+    companyLogoPath String,
+    industry String,
+    phoneNumber String
+}
 
-    ngOnDestroy() {
-        this.routeSub.unsubscribe();
-    }
+//variables and values will be
+//stored in this
+//referenceId and value will be
+//table reference id and the unique id of the table
+entity GenKeyValue{
+	keyVar String,
+    keyVal String,
+    referenceId Integer,
+    referenceValue Integer,
+    category String,
+    remarks String
+}
+
+//keyvars - concatenated key variables
+//for the process chain
+entity GenProcessChains{
+	chainName String,
+    chainDesc String,
+    category String,
+    createTime ZonedDateTime,
+    updateTime ZonedDateTime
+}
+
+entity GPChainFormulaVars{
+	inputVarName String,
+    keyVarFlag String,
+}
+
+entity ProcessVars{
+	varName String,
+    varDesc String,
+    category String
+}
+
+entity GenProcessChainFormula{
+	strFormula String,
+    strEuation String,
+    derivedVar String,
+    parentId Integer
+}
+
+relationship ManyToOne {
+    DoodilCases{user(login)} to User,
+    DoodilEntry{user(login)} to User,
+    ProductServiceDef{user(login)} to User,
+    MarketPriceDef{user(login)} to User,
+    ProcessVars{user(login)} to User,
+    GenProcessChains{user(login)} to User,
+    DoodilEntry{dePeriod(id)} to DoodilEntryPeriods,
+    DoodilEntryData{doodilEntry(id)} to DoodilEntry,
+ 	DoodilEntryData{psDef(id)} to ProductServiceDef,
+    DoodilEntryPrices{mpDef(id)} to MarketPriceDef,
+    DoodilEntryPrices{doodilEntry(id)} to DoodilEntry,
+    DoodilEntryProcessChains{deData(id)} to DoodilEntryData,
+    GenProcessChainFormula{gpChainsId(id)} to GenProcessChains,
+    GPChainFormulaVars{gpcFormulaId(id)} to GenProcessChainFormula,
+    DoodilEntryProcessChains{gpChainsId(id)} to GenProcessChains,
+    CompanyInfo{user(login)} to User
 }
 
 
-   <div class="modal-header">
-        <h4 class="modal-title" id="myGenProcessChainsLabel" jhiTranslate="doodilApp.genProcessChains.home.createOrEditLabel">Create or edit a Gen Process Chains</h4>
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
-                (click)="clear()">&times;</button>
-    </div>
-    <div class="modal-body">
-        <jhi-alert-error></jhi-alert-error>
-        <div class="btn-group" ngbDropdown keyboardNav="true">
-            <button id="dropdown-list" type="button" class="btn btn-default" ngbDropdownToggle>
-                Select Process Chain<span class="caret"></span>
-            </button>
-            <ul *ngFor="let genProcessChains of genProcessChains; trackBy: trackChainsId" class="dropdown-menu" role="menu" aria-labelledby="dropdown-keyboard-access" ngbDropdownMenu>
-                 <li role="menuitem"><a class="dropdown-item" (click)="getFormulas(genProcessChains)">{{genProcessChains.chainName}}</a></li>
-            </ul>
-        </div>
-        <div class="table-responsive" *ngIf="genProcessChainFormulas">
-            <table class="table">
-                <tbody>
-                <div *ngFor="let gpChainFormula of processChainFormulas; index as i; trackBy: trackFormulaId">
-                        <tr><td><b>Step {{i + 1}} : </b></td>
-                            <span *ngFor="let formulaSplit of gpChainFormula.formulaSplit; index as j; trackBy: trackFormulaSplitId">
-                    <td>{{formulaSplit.key}}<br/>
-                        <span *ngFor="let lstfield of lstFields; index as k">
-                            <span *ngIf="lstfield.genName == formulaSplit.genName">
-                                <span *ngIf="formulaSplit.operator != 'Y' && formulaSplit.value == 'I'">
-                                    <input type="text" class="form-control" [attr.name]="lstfield.name" [attr.id]="lstfield.name"
-                                       [(ngModel)]="lstfield.value" required/>
-                                </span>
-                                <span *ngIf="formulaSplit.operator != 'Y' && formulaSplit.value == 'D'">
-                                    <input type="text" class="form-control" [attr.name]="lstfield.name" [attr.id]="lstfield.name"
-                                       [(ngModel)]="lstfield.value"  [readonly]="true"/>
-                                </span>
-                            </span>
-                        </span>
-                    </td>
-                    </tr>
-                </div>
-                </tbody>
-            </table>
-        </div>
-    </div>
-    <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal" (click)="clear()">
-            <span class="fa fa-ban"></span>&nbsp;<span jhiTranslate="entity.action.cancel">Cancel</span>
-        </button>
-        <button type="button" class="btn btn-primary" (click)="save()">
-            <span class="fa fa-save"></span>&nbsp;<span jhiTranslate="entity.action.save">Save</span>
-        </button>
-    </div>
 
+// Set pagination options
+paginate ProductServiceDef, MarketPriceDef with infinite-scroll
 
-
-import { BaseEntity } from './../../shared';
-
-export class KeyValue implements BaseEntity {
-    constructor(
-        public key?: string,
-        public name?: string,
-        public value?: string,
-        public operator?: string,
-        public argValue?: string,
-        public genName?: string,
-    ) {
-    }
-}
-
+dto * with mapstruct
 
 
 
